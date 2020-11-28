@@ -59,13 +59,13 @@ class classAnalysis():
 
 def analysis(waveform_new, sample_rate_new, show, waveform_old=None, sample_rate_old=None):
     class_analysis = classAnalysis(waveform_old, sample_rate_old, waveform_new, sample_rate_new)
-    
+        
     class_analysis.decrypt_sound(show)
     return 0
 
-path = "./daft-punk-one-more-time-official-video.wav"
-waveform_old, sample_rate_old = torchaudio.load(path)
-waveform_new, sample_rate_new = torchaudio.load("test.wav")
-show = 1
+#path = "./daft-punk-one-more-time-official-video.wav"
+#waveform_old, sample_rate_old = torchaudio.load(path)
+#waveform_new, sample_rate_new = torchaudio.load("test.wav")
+#show = 1
 
-analysis(waveform_new, sample_rate_new, show, waveform_old=waveform_old, sample_rate_old=sample_rate_old)
+#analysis(waveform_new, sample_rate_new, show, waveform_old=waveform_old, sample_rate_old=sample_rate_old)

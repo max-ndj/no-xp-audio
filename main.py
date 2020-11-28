@@ -2,6 +2,7 @@ import sys
 import torchaudio
 
 from src.audio_effects.change_audio_effects import audio_effects as audio_effect
+from src.analysis.analysis import classAnalysis
 
 ae = audio_effect()
 
@@ -40,15 +41,16 @@ def modification(FilePath=None, analyze=0, contrast=-1, name="", show=0, delay=-
         else:
             torchaudio.save(name, waveform, sample_rate)
         if (analyze == 1):
-            print("Appelle Analyze")
+            AnalyzeC = classAnalysis(waveform_old, sample_rate_old, waveform, sample_rate)
+            AnalyzeC.decrypt_sound(show)
 
     
 def analyze(FilePath=None, show=0):
     print("analyze")
     if (FilePath != None):
         waveform, sample_rate = torchaudio.load(FilePath)
-
-    print(FilePath)
+        AnalyzeC = classAnalysis(None, None, waveform, sample_rate)
+        AnalyzeC.decrypt_sound(show)
 
 
 def find_in_array(array, items):
@@ -66,7 +68,7 @@ class arg():
 
     def check_argument(self):
         type_arg = ["-g", "-m", "-a", "--file", "--analyze", "--contrast", "--name", "--show", "--flanger", "--errape", "--frequency"]
-        params = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
+        params = [0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1]
         need_params = 0
         y = 0
         for value in sys.argv:
@@ -75,8 +77,8 @@ class arg():
                 if (arg[0] == '-' and arg[1] == '-' and arg == value
                 and find_in_array(self.module, arg) == -1):
                     self.module.append(arg)
-                    self.pos_module.append(y)
                     if (params[x] == 1):
+                        self.pos_module.append(y)
                         need_params = 1
                     break
                 elif (self.type == -1 and arg[0] == '-' and arg == value
@@ -91,7 +93,7 @@ class arg():
     def get_params(self):
         pos = 0
         for value in self.module:
-            if value == "--file" or value == "--contrast" or value == "--name" or value == "--show" or value == "--errape" or value == "--frequency":
+            if value == "--file" or value == "--contrast" or value == "--name" or value == "--errape" or value == "--frequency":
                 if (len(sys.argv) <= self.pos_module[pos] + 1):
                     print("Lose some arg")
                     exit(84)
@@ -121,7 +123,7 @@ class arg():
                 arg += "name='" + self.params[pos] + "', "
                 pos += 1
             elif (value == "--show"):
-                arg += "show='" + self.params[pos] + "', "
+                arg += "show=1, "
                 pos += 1
             elif (value == "--analyze"):
                 arg += "analyze=1, "

@@ -16,6 +16,7 @@ class audio_effects():
     def contrast(self, waveform, change_value):
         if (change_value >= 0 and change_value <= 100):
             new_waveform = torchaudio.functional.contrast(waveform, change_value)
+            return new_waveform
         else:
             print("Contrast -> bad value: need to be a number between 0 and 100")
-        return new_waveform
+            return waveform
