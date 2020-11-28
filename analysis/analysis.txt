@@ -1,0 +1,2 @@
+Shape of waveform: torch.Size([2, 276858])
+Sample rate of waveform: 44100
