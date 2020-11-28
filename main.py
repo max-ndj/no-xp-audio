@@ -1,12 +1,29 @@
 import sys
+import torchaudio
 
-def generator():
+from contrast import audio_effect as contrast
+
+cn = contrast()
+
+debug = 1
+
+def generator(name=""):
     print("generator")
 
-def modification(FilePath=None):
+def modification(FilePath=None, contrast=-1, name=""):
     print("modification")
+    if (FilePath != None):
+        waveform, sample_rate = torchaudio.load(FilePath)
+        if (contrast != -1):
+            waveform = cn.contrast(waveform, contrast)
 
-def analyze(FilePath=None):
+        #saving file
+        if (name == ""):
+            torchaudio.save(FilePath, waveform, sample_rate)
+        else:
+            torchaudio.save(name, waveform, sample_rate)
+
+def analyze(FilePath=None, show=0):
     print("analyze")
     print(FilePath)
 
@@ -25,8 +42,8 @@ class arg():
         self.params = []
 
     def check_argument(self):
-        type_arg = ["-g", "-m", "-a", "--file"]
-        params = [0, 0, 0, 1]
+        type_arg = ["-g", "-m", "-a", "--file", "--contrast", "--name", "--show"]
+        params = [0, 0, 0, 1, 1, 1, 1]
         need_params = 0
         y = 0
         for value in sys.argv:
@@ -51,7 +68,7 @@ class arg():
     def get_params(self):
         pos = 0
         for value in self.module:
-            if value == "--file":
+            if value == "--file" or value == "--contrast" or value == "--name" or value == "--show":
                 if (len(sys.argv) <= self.pos_module[pos] + 1):
                     print("Lose some arg")
                     exit(84)
@@ -59,27 +76,43 @@ class arg():
                 pos += 1
 
     def call_function(self):
+        global debug
         arg = ""
         pos = 0
         for value in self.module:
             if (value == "--file"):
                 arg += "FilePath='" + self.params[pos] + "', "
                 pos += 1
-        if (self.type == 0):
+            elif (value == "--contrast"):
+                arg += "contrast=" + self.params[pos] + ", "
+                pos += 1
+            elif (value == "--name"):
+                arg += "name='" + self.params[pos] + "', "
+                pos += 1
+            elif (value == "--show"):
+                arg += "show='" + self.params[pos] + "', "
+                pos += 1
+        if (self.type == 0 and debug == 0):
             try:
                 return eval("generator(" + arg + ")")
             except:
                 print("bad argument")
-        elif (self.type == 1):
+        elif (self.type == 1 and debug == 0):
             try:
                 return eval("modification(" + arg + ")")
             except:
                 print("bad argument")
-        else:
+        elif (debug == 0):
             try:
                 return eval("analyze(" + arg +")")
             except:
                 print("bad argument")
+        elif (self.type == 0 and debug == 1):
+            return eval("generator(" + arg + ")")
+        elif (self.type == 1 and debug == 1):
+            return eval("modification(" + arg + ")")
+        else:
+            return eval("analyze(" + arg +")")
 
 
 arg = arg()
