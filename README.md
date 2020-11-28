@@ -1,4 +1,5 @@
 # NO XP AUDIO
+No xp audio is a software for editing and generating audio. In the program you can get the information of the audio tracks and analyze them with diagrams.
 
 ## INSTALL
 
