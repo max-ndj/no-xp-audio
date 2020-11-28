@@ -15,7 +15,7 @@ def generator(name="", analyze=0, show=0):
         print("Appelle Analyze")
     
 
-def modification(FilePath=None, analyze=0, contrast=-1, name="", show=0, delay=-1, depth=-1, gain=-1, frequency=-1):
+def modification(FilePath=None, analyze=0, contrast=-1, name=None, show=0, delay=-1, depth=-1, gain=-1, frequency=-1, gain_in=-1, gain_out=-1, delay_ms=-1):
     print("modification")
     if (FilePath != None):
         waveform, sample_rate = torchaudio.load(FilePath)
@@ -34,9 +34,11 @@ def modification(FilePath=None, analyze=0, contrast=-1, name="", show=0, delay=-
         if (gain != -1):
             print("gain")
             waveform = ae.apply_earrape(waveform, gain)
-
+        if (gain_in != -1 and gain_out != -1 and delay_ms != -1):
+            print("phaser")
+            waveform = ae.apply_phaser(waveform, sample_rate, gain_in, gain_out, delay_ms)
         #saving file
-        if (name == ""):
+        if (name == None):
             torchaudio.save(FilePath, waveform, sample_rate)
         else:
             torchaudio.save(name, waveform, sample_rate)
@@ -67,8 +69,8 @@ class arg():
         self.params = []
 
     def check_argument(self):
-        type_arg = ["-g", "-m", "-a", "--file", "--analyze", "--contrast", "--name", "--show", "--flanger", "--errape", "--frequency"]
-        params = [0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1]
+        type_arg = ["-g", "-m", "-a", "--file", "--analyze", "--contrast", "--fname", "--show", "--flanger", "--errape", "--frequency", "--phaser"]
+        params = [0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1]
         need_params = 0
         y = 0
         for value in sys.argv:
@@ -93,7 +95,8 @@ class arg():
     def get_params(self):
         pos = 0
         for value in self.module:
-            if value == "--file" or value == "--contrast" or value == "--name" or value == "--errape" or value == "--frequency":
+            print(value)
+            if value == "--file" or value == "--contrast" or value == "--fname" or value == "--errape" or value == "--frequency":
                 if (len(sys.argv) <= self.pos_module[pos] + 1):
                     print("Lose some arg")
                     exit(84)
@@ -106,7 +109,14 @@ class arg():
                 self.params.append(sys.argv[self.pos_module[pos] + 1])
                 self.params.append(sys.argv[self.pos_module[pos] + 2])
                 pos += 1
-
+            elif value == "--phaser":
+                if (len(sys.argv) <= self.pos_module[pos] + 3):
+                    print("Lose some arg")
+                    exit(84)
+                self.params.append(sys.argv[self.pos_module[pos] + 1])
+                self.params.append(sys.argv[self.pos_module[pos] + 2])
+                self.params.append(sys.argv[self.pos_module[pos] + 3])
+                pos += 1
 
     def call_function(self):
         global debug
@@ -119,17 +129,19 @@ class arg():
             elif (value == "--contrast"):
                 arg += "contrast=" + self.params[pos] + ", "
                 pos += 1
-            elif (value == "--name"):
+            elif (value == "--fname"):
                 arg += "name='" + self.params[pos] + "', "
                 pos += 1
             elif (value == "--show"):
                 arg += "show=1, "
-                pos += 1
             elif (value == "--analyze"):
                 arg += "analyze=1, "
             elif (value == "--flanger"):
-                arg += "delay=" + self.params[pos] + ", depth=" + self.params[pos] + ", "
+                arg += "delay=" + self.params[pos] + ", depth=" + self.params[pos + 1] + ", "
                 pos += 2
+            elif (value == "--phaser"):
+                arg += "gain_in=" + self.params[pos] + ", gain_out=" + self.params[pos + 1] + ", delay_ms=" + self.params[pos + 2] + ", "
+                pos += 3
             elif (value == "--errape"):
                 arg += "gain=" + self.params[pos] + ", "
                 pos += 1
