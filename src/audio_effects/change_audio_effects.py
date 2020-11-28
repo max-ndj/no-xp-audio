@@ -9,7 +9,7 @@ class audio_effects():
         if (delay < 0 or delay > 30):
             print("Delay value is incorrect")
             return (waveform)
-        elif (depth < 0 or delay > 10):
+        elif (depth < 0 or depth > 10):
             print("Depth value is incorrect")
             return (waveform)
         new_waveform = torchaudio.functional.flanger(waveform, sample_rate, delay, depth)
