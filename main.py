@@ -7,13 +7,20 @@ cn = contrast()
 
 debug = 1
 
-def generator(name=""):
+def generator(name="", analyze=0, show=0):
     print("generator")
 
-def modification(FilePath=None, contrast=-1, name=""):
+    if (analyze == 1):
+        print("Appelle Analyze")
+    
+
+def modification(FilePath=None, analyze=0, contrast=-1, name="", show=0):
     print("modification")
     if (FilePath != None):
         waveform, sample_rate = torchaudio.load(FilePath)
+        if (analyze == 1):
+            waveform_old = waveform
+            sample_rate_old = sample_rate
         if (contrast != -1):
             waveform = cn.contrast(waveform, contrast)
 
@@ -22,9 +29,15 @@ def modification(FilePath=None, contrast=-1, name=""):
             torchaudio.save(FilePath, waveform, sample_rate)
         else:
             torchaudio.save(name, waveform, sample_rate)
+        if (analyze == 1):
+            print("Appelle Analyze")
 
+    
 def analyze(FilePath=None, show=0):
     print("analyze")
+    if (FilePath != None):
+        waveform, sample_rate = torchaudio.load(FilePath)
+
     print(FilePath)
 
 
@@ -42,8 +55,8 @@ class arg():
         self.params = []
 
     def check_argument(self):
-        type_arg = ["-g", "-m", "-a", "--file", "--contrast", "--name", "--show"]
-        params = [0, 0, 0, 1, 1, 1, 1]
+        type_arg = ["-g", "-m", "-a", "--file", "--analyze", "--contrast", "--name", "--show"]
+        params = [0, 0, 0, 1, 1, 1, 1, 1]
         need_params = 0
         y = 0
         for value in sys.argv:
@@ -92,6 +105,8 @@ class arg():
             elif (value == "--show"):
                 arg += "show='" + self.params[pos] + "', "
                 pos += 1
+            elif (value == "--analyze"):
+                arg += "analyze=1, "
         if (self.type == 0 and debug == 0):
             try:
                 return eval("generator(" + arg + ")")
