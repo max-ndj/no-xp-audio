@@ -14,8 +14,9 @@ def generator(name="", analyze=0, show=0):
         print("Appelle Analyze")
     
 
-def modification(FilePath=None, analyze=0, contrast=-1, name="", show=0):
+def modification(FilePath=None, analyze=0, contrast=-1, name="", show=0, delay=-1, depth=-1):
     print("modification")
+    print(delay, depth)
     if (FilePath != None):
         waveform, sample_rate = torchaudio.load(FilePath)
         if (analyze == 1):
@@ -55,8 +56,8 @@ class arg():
         self.params = []
 
     def check_argument(self):
-        type_arg = ["-g", "-m", "-a", "--file", "--analyze", "--contrast", "--name", "--show"]
-        params = [0, 0, 0, 1, 1, 1, 1, 1]
+        type_arg = ["-g", "-m", "-a", "--file", "--analyze", "--contrast", "--name", "--show", "--flanger"]
+        params = [0, 0, 0, 1, 1, 1, 1, 1, 1]
         need_params = 0
         y = 0
         for value in sys.argv:
@@ -87,6 +88,14 @@ class arg():
                     exit(84)
                 self.params.append(sys.argv[self.pos_module[pos] + 1])
                 pos += 1
+            elif value == "--flanger":
+                if (len(sys.argv) <= self.pos_module[pos] + 2):
+                    print("Lose some arg")
+                    exit(84)
+                self.params.append(sys.argv[self.pos_module[pos] + 1])
+                self.params.append(sys.argv[self.pos_module[pos] + 2])
+                pos += 2
+
 
     def call_function(self):
         global debug
@@ -107,6 +116,9 @@ class arg():
                 pos += 1
             elif (value == "--analyze"):
                 arg += "analyze=1, "
+            elif (value == "--flanger"):
+                arg += "delay=" + self.params[pos] + ", depth=" + self.params[pos] + ", "
+                pos += 2
         if (self.type == 0 and debug == 0):
             try:
                 return eval("generator(" + arg + ")")
