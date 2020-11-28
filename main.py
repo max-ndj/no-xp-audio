@@ -1,9 +1,9 @@
 import sys
 import torchaudio
 
-from contrast import audio_effect as contrast
+from src.audio_effects.change_audio_effects import audio_effects as audio_effect
 
-cn = contrast()
+ae = audio_effect()
 
 debug = 1
 
@@ -14,16 +14,25 @@ def generator(name="", analyze=0, show=0):
         print("Appelle Analyze")
     
 
-def modification(FilePath=None, analyze=0, contrast=-1, name="", show=0, delay=-1, depth=-1):
+def modification(FilePath=None, analyze=0, contrast=-1, name="", show=0, delay=-1, depth=-1, gain=-1, frequency=-1):
     print("modification")
-    print(delay, depth)
     if (FilePath != None):
         waveform, sample_rate = torchaudio.load(FilePath)
         if (analyze == 1):
             waveform_old = waveform
             sample_rate_old = sample_rate
         if (contrast != -1):
-            waveform = cn.contrast(waveform, contrast)
+            print("contrast")
+            waveform = ae.contrast(waveform, contrast)
+        # if (frequency != -1):
+        #    print("frequency")
+        #    waveform = ae.change_audio_frequency(waveform, sample_rate, frequency)
+        if (delay != -1 and depth != -1):
+            print("flanger")
+            waveform = ae.apply_flanger(waveform, sample_rate, delay, depth)
+        if (gain != -1):
+            print("gain")
+            waveform = ae.apply_earrape(waveform, gain)
 
         #saving file
         if (name == ""):
@@ -56,8 +65,8 @@ class arg():
         self.params = []
 
     def check_argument(self):
-        type_arg = ["-g", "-m", "-a", "--file", "--analyze", "--contrast", "--name", "--show", "--flanger"]
-        params = [0, 0, 0, 1, 1, 1, 1, 1, 1]
+        type_arg = ["-g", "-m", "-a", "--file", "--analyze", "--contrast", "--name", "--show", "--flanger", "--errape", "--frequency"]
+        params = [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1]
         need_params = 0
         y = 0
         for value in sys.argv:
@@ -82,7 +91,7 @@ class arg():
     def get_params(self):
         pos = 0
         for value in self.module:
-            if value == "--file" or value == "--contrast" or value == "--name" or value == "--show":
+            if value == "--file" or value == "--contrast" or value == "--name" or value == "--show" or value == "--errape" or value == "--frequency":
                 if (len(sys.argv) <= self.pos_module[pos] + 1):
                     print("Lose some arg")
                     exit(84)
@@ -94,7 +103,7 @@ class arg():
                     exit(84)
                 self.params.append(sys.argv[self.pos_module[pos] + 1])
                 self.params.append(sys.argv[self.pos_module[pos] + 2])
-                pos += 2
+                pos += 1
 
 
     def call_function(self):
@@ -119,6 +128,12 @@ class arg():
             elif (value == "--flanger"):
                 arg += "delay=" + self.params[pos] + ", depth=" + self.params[pos] + ", "
                 pos += 2
+            elif (value == "--errape"):
+                arg += "gain=" + self.params[pos] + ", "
+                pos += 1
+            elif (value == "--frequency"):
+                arg += "frequency=" + self.params[pos] + ", "
+                pos += 1
         if (self.type == 0 and debug == 0):
             try:
                 return eval("generator(" + arg + ")")
