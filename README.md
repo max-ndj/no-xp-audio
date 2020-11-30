@@ -7,7 +7,7 @@ No xp audio is a software for editing and generating audio. In the program you c
 
 ```
 pip3 install --user torch
-pip install -U matplotlib
+pip3 install -U matplotlib
 ```
 
 ### Packages:
